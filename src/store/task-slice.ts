@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-interface Task {
+export interface Task {
   id: string
   name: string;
   marked: boolean;
@@ -9,6 +9,7 @@ interface Task {
 interface StateTask {
   tasks: Task[];
   addTask: (task: Task) => void;
+  getTask: (taskName: string) => boolean;
   markedTask: (id: string) => void;
   getAmountTasksChecked: () => number;
   getAmountTasksPending: () => number;
@@ -23,13 +24,18 @@ const useTaskStore = create<StateTask>((set, get) => ({
       }
     })
   },
+  getTask: (taskName: string) => {
+    const existingTask = get().tasks.some((task) => task.name.toUpperCase() === taskName.toUpperCase());
+
+    return existingTask
+  },
   markedTask: (id: string) => {
     set((state) => {
       const markedTask = state.tasks.map((task) => {
         if(task.id === id) {
           return {
             ...task,
-            marked: true
+            marked: !task.marked
           }
         } else {
           return task
